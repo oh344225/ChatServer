@@ -8,12 +8,12 @@ import java.util.*;
  
  学生証番号：344432
  氏名：　　　神田　拓哉
-           
-           344225
-           大下 隼人
  
-           345369
-           本山　滉樹
+ 344225
+ 大下 隼人
+ 
+ 345369
+ 本山　滉樹
  
  今回はnameメソッドのなかでクライアントの名前が他のクラインとの名前とhandler.getClientName().equals(message)をif文のなかの条件分岐でつかいthis.nameからループでまわるたびに判定を行いクライアント同士の名前の一致の確認の仕方を工夫しました。また、usersメソッドではpostを利用し、usersでは自分の名前も表示するためif(handler != this)を使わないなどの少しの変化でプログラムを書く事ができました。
  
@@ -54,7 +54,12 @@ public class ChatClientHandler extends Thread{
                 else if(commands[0].equalsIgnoreCase("name")){//name
                     name(commands[1]);
                 }
-                
+                else if(commands[0].equalsIgnoreCase("whoamai")){//whoamai
+                    whoamai();
+                }
+                else if(commands[0].equalsIgnoreCase("users")){//users
+                    users();
+                }
                 if(message.equals("")) break;
                 send(message);
             }
@@ -62,10 +67,28 @@ public class ChatClientHandler extends Thread{
             e.printStackTrace();
         } finally{
             close();
-	    }
+        }
     }
     
-      }
+    public void users() throws IOException{//users
+        List names = new ArrayList();
+        for(int i = 0; i < clients.size(); i++){
+            ChatClientHandler handler = (ChatClientHandler)clients.get(i);
+            names.add(handler.getClientName());
+        }
+        Collections.sort(names);
+        String returnMessage = "";
+        for(int i = 0; i < names.size(); i++){
+            returnMessage = returnMessage + names.get(i)+ ",";
+        }
+        send("現在サーバに接続しているユーザは以下の通りです");
+        this.send(returnMessage);
+    }
+    
+    public void whoamai() throws IOException{//whoamai
+        send("Your name is set");
+        send(getClientName());
+    }
     
     public void help() throws IOException{//help
         send("処理可能な命令一覧");
@@ -114,7 +137,7 @@ public class ChatClientHandler extends Thread{
         return line;
     }
     
-   public void send(String message) throws IOException{//クライアントにデータを送信するメソッド
+    public void send(String message) throws IOException{//クライアントにデータを送信するメソッド
         out.write(message);
         out.write("\r\n");
         out.flush();
